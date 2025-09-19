@@ -6,16 +6,26 @@ import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 
 import type { QueryClient } from '@tanstack/react-query'
 import { Navbar } from '@/components/Navbar'
+import { Sidebar } from '@/components/Sidebar'
+import { LayoutProvider, useLayout } from '@/contexts/LayoutContext'
+import { cn } from '@/lib/utils'
 
 interface MyRouterContext {
   queryClient: QueryClient
 }
 
-export const Route = createRootRouteWithContext<MyRouterContext>()({
-  component: () => (
+function RootLayout() {
+  const { sidebarCollapsed } = useLayout()
+  
+  return (
     <>
+      <Sidebar />
       <Navbar />
-      <Outlet />
+      <main className={cn("pt-14 min-h-screen bg-background transition-all duration-300", sidebarCollapsed ? "ml-16" : "ml-64")}>
+        <div className="p-6">
+          <Outlet />
+        </div>
+      </main>
       <TanstackDevtools
         config={{
           position: 'bottom-left',
@@ -29,5 +39,13 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         ]}
       />
     </>
+  )
+}
+
+export const Route = createRootRouteWithContext<MyRouterContext>()({
+  component: () => (
+    <LayoutProvider>
+      <RootLayout />
+    </LayoutProvider>
   ),
 })
